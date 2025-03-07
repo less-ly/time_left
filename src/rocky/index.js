@@ -1,47 +1,38 @@
 var rocky = require('rocky');
 
-//function drawOrbits(ctx, cx, cy, length) {
-//  var step = 1;
-//  ctx.strokeStyle = 'black';
-//
-//  while (step < 4) {
-//    ctx.beginPath();
-//    ctx.arc(cx, cy, length * step, 0, 2 * Math.PI, false);
-//    ctx.stroke();
-//    step++;
-//}};
+// Adjust the frequence of changes to the watchface
+// default value
+var time_cycle = 'minutechange'
+
+// debuggin value
+//var time_cycle = 'secondchange'
 
 function fractionToRadian(fraction) {
+  // drawTimeElapsed() takes angles in radians, thus the need for conversion
   return fraction * 2 * Math.PI;
 }
 
-//function drawPlanet(ctx, cx, cy, angle, length, color) {
-  // Find the points on the orbit
-  //var x2 = cx + Math.sin(angle) * length;
-  //var y2 = cy - Math.cos(angle) * length;
+function drawTimeElapsed(ctx, cx, cy, angle, length, color) {
+  // Draw a watch with an hour hand - its negative space more accurately speaking
 
-  // Actually draw a planet
-  //ctx.fillstyle = color;
-  //ctx.rockyFillRadial(x2, y2, 0, 5, 0, 2 * Math.PI);
-//};
-
-function drawTimeLeft(ctx, cx, cy, angle, length, color) {
-  // Find the points for the "hand", i.e. the moving edge of the circle
-  var x2 = cx + Math.sin(angle) * length;
-  var y2 = cy - Math.cos(angle) * length;
-
-  // Actually draw a circle that represents how much time is left
+  // set the color of the "negative space" - time already passed
   ctx.fillStyle = color;
-  ctx.rockyFillRadial(cx, cy, 0, length, 0 - Math.PI / 2, angle - Math.PI / 2);
+
+  // shift the startAngle from 3 o'clock back to 12 o'clock
+  var startAngle = 0 - (Math.PI / 2)
+  // shift the endAngle along as well
+  var endAngle = angle - (Math.PI / 2)
+
+  // Actually draw the watch
+  ctx.rockyFillRadial(cx, cy, 0, length, startAngle, endAngle);
 };
 
 rocky.on('draw', function(event) {
   // Get the CanvasRenderingContext2D object
   var ctx = event.context;
 
+  // Set white background
   var background_color = 'white';
-
-  // Draw white background
   ctx.fillStyle = background_color;
   ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
 
@@ -52,78 +43,69 @@ rocky.on('draw', function(event) {
   // Current date/time
   var d = new Date();
 
-  // Set the font
-  //ctx.font = '18px Gothic'
-
-  // Get the current day of the month in 2-digit format
-  //var day = d.toLocaleTimeString(undefined, {day: '2-digit'});
-  //day = day.substring(0, 2);
-
-  // ctx.fillText(d.getDate().toString(), w / 2, h / 2, w);
-  // getDate() doesn't put a preceding zero into 1-digit dates 
-
   // Determine the center point of the display
-  // and the max size of a "watch hand", i.e. the shifting radial edge of the circle
+  // and the max size of a "watch hand", i.e. the shifting radial edge
   var cx = w / 2;
   var cy = h / 2;
-
+  // radial reaches beyond the display dimensions to fill as much space as possible 
   var maxLength = Math.max(w, h);
 
-  // set the color for the planets
+  // set the color for the radial, i.e. "negative space" of the watch
   var circle_color = 'black';
 
-  // -
-  // Calculate the "seconds hand", i.e. the 1st planet's angle
+  // Get amount of time passed in hours plus fractional part for the "watch hand"
+  // Calculate the amount of seconds passed
   var secondsFraction = (d.getSeconds() / 60);
   var secondsAngle = fractionToRadian(secondsFraction);
 
-  // Draw the "seconds hand", i.e. the 1st planet from the center
-  // drawPlanet(ctx, cx, cy, secondsAngle, minLength, color);
-  // -
-
-  // --
-  // Calculate the "minutes hand", i.e. the 2nd planet's angle
+  // Calculate the amount of minutes passed, plus a fractional part of seconds 
   var minutesFraction = (d.getMinutes() % 60 + secondsFraction) / 60;
   var minutesAngle = fractionToRadian(minutesFraction);
 
-  // Draw the "minutes hand", i.e. the 2nd planet from the center
-  // drawPlanet(ctx, cx, cy, minutesAngle, minLength * 2, color);
-  // --
-
-  // --
-  // Calculate the "hours hand", i.e. the 3rd planet's angle
+  // Calculate the amount of hours   passed, plus a fractional part of mintues and seconds
   var hoursFraction = (d.getHours() % 12 + minutesFraction) / 12;
   var hoursAngle = fractionToRadian(hoursFraction);
 
-  // Draw the "hours hand", i.e. the 3rd planet from the center
-  //drawPlanet(ctx, cx, cy, hoursAngle, minLength * 3, color);
-  // ---
+  // Draw a watch - its "negative space" - i.e. how much time has already passed
+  // in hours - suitable for the whole day
+  drawTimeElapsed(ctx, cx, cy, hoursAngle, maxLength, circle_color) 
 
-  // Draw orbits
-  //drawOrbits(ctx, cx, cy, minLength);
+  // - For debugging and testing START -
 
-  // Draw circle that represents how much time is left
-  drawTimeLeft(ctx, cx, cy, hoursAngle, maxLength, circle_color) 
+  // SIDENOTE: CanvasRenderingContext2D draws graphical objects 
+  // from bottom to top in order of appearance with function calls.
+  // Thus the following text is drawn on the very top.
 
-  // ---
-  // uncomment if need to adjust the planets' location and want and actual time reference
-  var time = d.toLocaleTimeString();
+  // Draw a watch - its "negative space" - i.e. how much time has already passed
+  // in seconds - suitable for general debugging
+  //drawTimeElapsed(ctx, cx, cy, secondsAngle, maxLength, circle_color) 
 
-  // Set the text color
-  ctx.fillStyle = 'purple';
+  // Draw a watch - its "negative space" - i.e. how much time has already passed
+  // in minutes - suitable for additional testing
+  //drawTimeElapsed(ctx, cx, cy, minutesAngle, maxLength, circle_color) 
+
+  // Just get the time
+  //var time = d.toLocaleTimeString();
+
+  // Set the font
+  //ctx.font = '18px Gothic'
+
+  // Set the text color, the one constrasting with the existing ones
+  //ctx.fillStyle = 'purple';
 
   // Center align the text
-  ctx.textAlign = 'center';
+  //ctx.textAlign = 'center';
 
-  // adjust the central height for the text
-  var text_cy = cy - 18 / 3 * 2 ;
+  // Adjust the central height for the text
+  //var text_cy = cy - 18 / 3 * 2 ;
 
-  // Display the current date, in the middle of the screen
-  ctx.fillText(time, cx, text_cy, w);
+  // Display the current time, in the middle of the screen
+  //ctx.fillText(time, cx, text_cy, w);
 
+  // - For debugging and testing END -
 });
 
-rocky.on('secondchange', function(event) {
+rocky.on(time_cycle, function(event) {
   // Request the screen to be redrawn on next pass
   rocky.requestDraw();
 });
