@@ -1,8 +1,8 @@
 {
-  "name": "time_left",
-  "author": "MakeAwesomeHappen",
+  "name": "Time Left",
+  "author": "m1k",
   "version": "1.0.0",
-  "keywords": ["pebble-app"],
+  "keywords": ["pebble-watchface", "minimal", "utilitarian"],
   "private": true,
   "dependencies": {},
   "pebble": {
@@ -10,11 +10,15 @@
       "rockyjs": "src/rocky/index.js",
       "pkjs": "src/pkjs/index.js"
     },
-    "displayName": "time_left",
+    "displayName": "Time Left",
     "uuid": "25073e09-89da-4327-ae2c-eed0563bd9de",
     "projectType": "rocky",
     "sdkVersion": "3",
     "enableMultiJS": true,
+    "targetPlatforms": [
+      "basalt",
+      "chalk"
+    ],
     "watchapp": {
       "watchface": true
     },

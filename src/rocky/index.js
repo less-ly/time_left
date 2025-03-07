@@ -2,10 +2,10 @@ var rocky = require('rocky');
 
 // Adjust the frequence of changes to the watchface
 // default value
-var time_cycle = 'minutechange'
+var timeCycle = 'minutechange'
 
-// debuggin value
-//var time_cycle = 'secondchange'
+// debug value
+//var timeCycle = 'secondchange'
 
 function fractionToRadian(fraction) {
   // drawTimeElapsed() takes angles in radians, thus the need for conversion
@@ -105,7 +105,7 @@ rocky.on('draw', function(event) {
   // - For debugging and testing END -
 });
 
-rocky.on(time_cycle, function(event) {
+rocky.on(timeCycle, function(event) {
   // Request the screen to be redrawn on next pass
   rocky.requestDraw();
 });
