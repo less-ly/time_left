@@ -1,5 +1,7 @@
 # Time Left
 
+![A portion of screen sliced](./screenshots/basalt_4-9_oclock.png)
+
 A minimal watchface with an emphasis on how much time is left in the day.
 
 * tells current time in hours, 12h format
